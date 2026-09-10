@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>家計収支＆お小遣いシミュレーター</title>
+  <title>家計収支＆お小遣い自動計算シミュレーター</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -34,7 +34,7 @@
       margin-bottom: 16px;
     }
     th, td {
-      padding: 8px;
+      padding: 8px 4px;
       text-align: center;
       border: 1px solid #e1e6eb;
       font-size: 0.85rem;
@@ -45,7 +45,7 @@
     }
     input[type="number"] {
       width: 90%;
-      padding: 6px;
+      padding: 6px 2px;
       border: 1px solid #ccc;
       border-radius: 4px;
       text-align: right;
@@ -74,11 +74,6 @@
       border-top: 1px dashed #a3c2f0;
       padding-top: 6px;
       margin-top: 6px;
-    }
-    .note {
-      font-size: 0.75rem;
-      color: #777;
-      margin-top: 4px;
     }
     .section-divider {
       margin: 30px 0;
@@ -168,34 +163,59 @@
     </thead>
     <tbody>
       <tr>
-        <td>年間手取りボーナス</td>
-        <td><input type="number" id="b_takehome_h" value="600000" oninput="calcAll()"></td>
-        <td><input type="number" id="b_takehome_w" value="400000" oninput="calcAll()"></td>
+        <td>手取りボーナス</td>
+        <td><input type="number" id="b_bonus_h" value="1200000" oninput="calcAll()"></td>
+        <td><input type="number" id="b_bonus_w" value="800000" oninput="calcAll()"></td>
       </tr>
       <tr>
-        <td>年間特別支出（旅行・車税等）</td>
-        <td><input type="number" id="b_expense_h" value="-200000" oninput="calcAll()"></td>
-        <td><input type="number" id="b_expense_w" value="-100000" oninput="calcAll()"></td>
+        <td>月給不足補填</td>
+        <td><input type="number" id="b_shortfall_h" value="-118800" oninput="calcAll()"></td>
+        <td><input type="number" id="b_shortfall_w" value="0" oninput="calcAll()"></td>
       </tr>
       <tr>
-        <td>ボーナスからの年間貯蓄額</td>
-        <td><input type="number" id="b_saving_h" value="-250000" oninput="calcAll()"></td>
-        <td><input type="number" id="b_saving_w" value="-150000" oninput="calcAll()"></td>
+        <td>住宅ローン加算</td>
+        <td><input type="number" id="b_house_add_h" value="-200000" oninput="calcAll()"></td>
+        <td><input type="number" id="b_house_add_w" value="-200000" oninput="calcAll()"></td>
+      </tr>
+      <tr>
+        <td>車ローン加算</td>
+        <td><input type="number" id="b_car_add_h" value="-240000" oninput="calcAll()"></td>
+        <td><input type="number" id="b_car_add_w" value="0" oninput="calcAll()"></td>
+      </tr>
+      <tr>
+        <td>固定資産税</td>
+        <td><input type="number" id="b_tax_h" value="-100000" oninput="calcAll()"></td>
+        <td><input type="number" id="b_tax_w" value="0" oninput="calcAll()"></td>
+      </tr>
+      <tr>
+        <td>車特別維持費</td>
+        <td><input type="number" id="b_car_maint_h" value="-200000" oninput="calcAll()"></td>
+        <td><input type="number" id="b_car_maint_w" value="0" oninput="calcAll()"></td>
+      </tr>
+      <tr>
+        <td>大型旅行</td>
+        <td><input type="number" id="b_travel_h" value="-250000" oninput="calcAll()"></td>
+        <td><input type="number" id="b_travel_w" value="-250000" oninput="calcAll()"></td>
+      </tr>
+      <tr>
+        <td>住宅ローン控除</td>
+        <td><input type="number" id="b_deduct_h" value="119000" oninput="calcAll()"></td>
+        <td><input type="number" id="b_deduct_w" value="119000" oninput="calcAll()"></td>
       </tr>
     </tbody>
   </table>
 
   <div class="result-box">
     <div class="result-row">
-      <span>夫のボーナス自由枠:</span>
+      <span>夫の年間手残り現金 (自由枠):</span>
       <span id="res_b_h">0 円</span>
     </div>
     <div class="result-row">
-      <span>妻のボーナス自由枠:</span>
+      <span>妻の年間手残り現金 (自由枠):</span>
       <span id="res_b_w">0 円</span>
     </div>
     <div class="result-total">
-      <span>世帯合計のボーナス自由枠:</span>
+      <span>世帯合計の年間手残り現金:</span>
       <span id="res_b_total">0 円</span>
     </div>
   </div>
@@ -210,8 +230,8 @@
       <span id="res_yearly_nisa">0 円</span>
     </div>
     <div class="result-row">
-      <span>ボーナスからの年間貯蓄額:</span>
-      <span id="res_yearly_bonus_save">0 円</span>
+      <span>ボーナス等からの年間手残り残高:</span>
+      <span id="res_yearly_bonus_rem">0 円</span>
     </div>
     <div class="result-total">
       <span>年間で増える世帯の総資産額:</span>
@@ -236,16 +256,15 @@
     document.getElementById('res_m_w').textContent = sum_m_w.toLocaleString() + ' 円';
     document.getElementById('res_m_total').textContent = (sum_m_h + sum_m_w).toLocaleString() + ' 円';
 
-    // 2. ボーナス計算
-    const b_takehome_h = Number(document.getElementById('b_takehome_h').value) || 0;
-    const b_expense_h = Number(document.getElementById('b_expense_h').value) || 0;
-    const b_saving_h = Number(document.getElementById('b_saving_h').value) || 0;
-    const sum_b_h = b_takehome_h + b_expense_h + b_saving_h;
+    // 2. ボーナス計算 (詳細項目)
+    const ids_b_h = ['b_bonus_h', 'b_shortfall_h', 'b_house_add_h', 'b_car_add_h', 'b_tax_h', 'b_car_maint_h', 'b_travel_h', 'b_deduct_h'];
+    const ids_b_w = ['b_bonus_w', 'b_shortfall_w', 'b_house_add_w', 'b_car_add_w', 'b_tax_w', 'b_car_maint_w', 'b_travel_w', 'b_deduct_w'];
 
-    const b_takehome_w = Number(document.getElementById('b_takehome_w').value) || 0;
-    const b_expense_w = Number(document.getElementById('b_expense_w').value) || 0;
-    const b_saving_w = Number(document.getElementById('b_saving_w').value) || 0;
-    const sum_b_w = b_takehome_w + b_expense_w + b_saving_w;
+    let sum_b_h = 0;
+    ids_b_h.forEach(id => sum_b_h += Number(document.getElementById(id).value) || 0);
+
+    let sum_b_w = 0;
+    ids_b_w.forEach(id => sum_b_w += Number(document.getElementById(id).value) || 0);
 
     document.getElementById('res_b_h').textContent = sum_b_h.toLocaleString() + ' 円';
     document.getElementById('res_b_w').textContent = sum_b_w.toLocaleString() + ' 円';
@@ -256,11 +275,11 @@
     const nisa_w = Math.abs(Number(document.getElementById('m_nisa_w').value) || 0);
     const yearly_nisa = (nisa_h + nisa_w) * 12;
 
-    const yearly_bonus_save = Math.abs(b_saving_h) + Math.abs(b_saving_w);
-    const total_asset = yearly_nisa + yearly_bonus_save;
+    const yearly_bonus_rem = sum_b_h + sum_b_w;
+    const total_asset = yearly_nisa + yearly_bonus_rem;
 
     document.getElementById('res_yearly_nisa').textContent = yearly_nisa.toLocaleString() + ' 円';
-    document.getElementById('res_yearly_bonus_save').textContent = yearly_bonus_save.toLocaleString() + ' 円';
+    document.getElementById('res_yearly_bonus_rem').textContent = yearly_bonus_rem.toLocaleString() + ' 円';
     document.getElementById('res_yearly_total_asset').textContent = total_asset.toLocaleString() + ' 円';
   }
 
