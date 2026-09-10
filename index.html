@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>毎月収支＆お小遣い自動計算シミュレーター</title>
+    <style>
+        body { font-family: sans-serif; background: #f4f6f8; padding: 20px; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        h2 { font-size: 18px; border-bottom: 2px solid #007bff; padding-bottom: 8px; margin-bottom: 20px; color: #007bff; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: center; font-size: 14px; }
+        th { background: #f8f9fa; }
+        input[type="number"] { width: 90%; padding: 6px; text-align: right; font-size: 14px; border: 1px solid #ccc; border-radius: 4px; }
+        .result-box { background: #eef9ff; border: 1px solid #b8daff; padding: 15px; border-radius: 8px; margin-top: 15px; }
+        .result-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-weight: bold; font-size: 15px; }
+        .result-row:last-child { margin-bottom: 0; color: #0056b3; font-size: 17px; border-top: 1px dashed #b8daff; padding-top: 8px; }
+        .note { font-size: 12px; color: #666; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>1. 毎月収支＆お小遣い自動計算シート</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>項目</th>
+                <th>夫 (円)</th>
+                <th>妻 (円)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>手取り月給</td>
+                <td><input type="number" id="h_income" value="300000" oninput="calc()"></td>
+                <td><input type="number" id="w_income" value="258000" oninput="calc()"></td>
+            </tr>
+            <tr>
+                <td>住宅関連費</td>
+                <td><input type="number" id="h_housing" value="-90000" oninput="calc()"></td>
+                <td><input type="number" id="w_housing" value="0" oninput="calc()"></td>
+            </tr>
+            <tr>
+                <td>保育料・教育費</td>
+                <td><input type="number" id="h_edu" value="0" oninput="calc()"></td>
+                <td><input type="number" id="w_edu" value="-45000" oninput="calc()"></td>
+            </tr>
+            <tr>
+                <td>食費・日用品雑費</td>
+                <td><input type="number" id="h_living" value="0" oninput="calc()"></td>
+                <td><input type="number" id="w_living" value="-120000" oninput="calc()"></td>
+            </tr>
+            <tr>
+                <td>車ローン・維持費</td>
+                <td><input type="number" id="h_car" value="-69900" oninput="calc()"></td>
+                <td><input type="number" id="w_car" value="0" oninput="calc()"></td>
+            </tr>
+            <tr>
+                <td>光熱・通信費</td>
+                <td><input type="number" id="h_util" value="-30000" oninput="calc()"></td>
+                <td><input type="number" id="w_util" value="-5000" oninput="calc()"></td>
+            </tr>
+            <tr>
+                <td>NISA積立額</td>
+                <td><input type="number" id="h_nisa" value="-40000" oninput="calc()"></td>
+                <td><input type="number" id="w_nisa" value="-20000" oninput="calc()"></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="result-box">
+        <div class="result-row">
+            <span>夫の毎月の自由枠 (お小遣い):</span>
+            <span id="res_husband">0 円</span>
+        </div>
+        <div class="result-row">
+            <span>妻の毎月の自由枠 (お小遣い):</span>
+            <span id="res_wife">0 円</span>
+        </div>
+        <div class="result-row">
+            <span>世帯合計の毎月の自由枠:</span>
+            <span id="res_total">0 円</span>
+        </div>
+    </div>
+    
+    <div class="note">※ 支出やNISA積立はマイナス（-）で入力すると、自動で自由枠が計算されます。</div>
+
+このコードで作りたい
+</div>
+
+<script>
+function val(id) {
+    return Number(document.getElementById(id).value) || 0;
+}
+
+function calc() {
+    let h_sum = val('h_income') + val('h_housing') + val('h_edu') + val('h_living') + val('h_car') + val('h_util') + val('h_nisa');
+    let w_sum = val('w_income') + val('w_housing') + val('w_edu') + val('w_living') + val('w_car') + val('w_util') + val('w_nisa');
+    let total = h_sum + w_sum;
+
+    document.getElementById('res_husband').innerText = h_sum.toLocaleString() + ' 円';
+    document.getElementById('res_wife').innerText = w_sum.toLocaleString() + ' 円';
+    document.getElementById('res_total').innerText = total.toLocaleString() + ' 円';
+}
+
+// 初回計算実行
+calc();
+</script>
+
+</body>
+</html>
