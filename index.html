@@ -153,7 +153,6 @@
       <span id="res_m_total">0 円</span>
     </div>
   </div>
-  <p class="note">※ 支出やNISA積立はマイナス（-）で入力すると、自動で自由枠が計算されます。</p>
 
   <hr class="section-divider">
 
@@ -163,28 +162,40 @@
     <thead>
       <tr>
         <th>項目</th>
-        <th>年間合計 (円)</th>
+        <th>夫 (円)</th>
+        <th>妻 (円)</th>
       </tr>
     </thead>
     <tbody>
       <tr>
-        <td>手取りボーナス合計</td>
-        <td><input type="number" id="b_takehome" value="1000000" oninput="calcAll()"></td>
+        <td>年間手取りボーナス</td>
+        <td><input type="number" id="b_takehome_h" value="600000" oninput="calcAll()"></td>
+        <td><input type="number" id="b_takehome_w" value="400000" oninput="calcAll()"></td>
       </tr>
       <tr>
-        <td>年間特別支出（旅行・車税など）</td>
-        <td><input type="number" id="b_expense" value="-300000" oninput="calcAll()"></td>
+        <td>年間特別支出（旅行・車税等）</td>
+        <td><input type="number" id="b_expense_h" value="-200000" oninput="calcAll()"></td>
+        <td><input type="number" id="b_expense_w" value="-100000" oninput="calcAll()"></td>
       </tr>
       <tr>
         <td>ボーナスからの年間貯蓄額</td>
-        <td><input type="number" id="b_saving" value="-400000" oninput="calcAll()"></td>
+        <td><input type="number" id="b_saving_h" value="-250000" oninput="calcAll()"></td>
+        <td><input type="number" id="b_saving_w" value="-150000" oninput="calcAll()"></td>
       </tr>
     </tbody>
   </table>
 
   <div class="result-box">
+    <div class="result-row">
+      <span>夫のボーナス自由枠:</span>
+      <span id="res_b_h">0 円</span>
+    </div>
+    <div class="result-row">
+      <span>妻のボーナス自由枠:</span>
+      <span id="res_b_w">0 円</span>
+    </div>
     <div class="result-total">
-      <span>ボーナス年間の自由枠（可処分額）:</span>
+      <span>世帯合計のボーナス自由枠:</span>
       <span id="res_b_total">0 円</span>
     </div>
   </div>
@@ -211,31 +222,41 @@
 
 <script>
   function calcAll() {
-    const ids_h = ['m_takehome_h', 'm_housing_h', 'm_edu_h', 'm_food_h', 'm_car_h', 'm_util_h', 'm_nisa_h'];
-    const ids_w = ['m_takehome_w', 'm_housing_w', 'm_edu_w', 'm_food_w', 'm_car_w', 'm_util_w', 'm_nisa_w'];
+    // 1. 毎月計算
+    const ids_m_h = ['m_takehome_h', 'm_housing_h', 'm_edu_h', 'm_food_h', 'm_car_h', 'm_util_h', 'm_nisa_h'];
+    const ids_m_w = ['m_takehome_w', 'm_housing_w', 'm_edu_w', 'm_food_w', 'm_car_w', 'm_util_w', 'm_nisa_w'];
 
-    let sum_h = 0;
-    ids_h.forEach(id => sum_h += Number(document.getElementById(id).value) || 0);
+    let sum_m_h = 0;
+    ids_m_h.forEach(id => sum_m_h += Number(document.getElementById(id).value) || 0);
 
-    let sum_w = 0;
-    ids_w.forEach(id => sum_w += Number(document.getElementById(id).value) || 0);
+    let sum_m_w = 0;
+    ids_m_w.forEach(id => sum_m_w += Number(document.getElementById(id).value) || 0);
 
-    document.getElementById('res_m_h').textContent = sum_h.toLocaleString() + ' 円';
-    document.getElementById('res_m_w').textContent = sum_w.toLocaleString() + ' 円';
-    document.getElementById('res_m_total').textContent = (sum_h + sum_w).toLocaleString() + ' 円';
+    document.getElementById('res_m_h').textContent = sum_m_h.toLocaleString() + ' 円';
+    document.getElementById('res_m_w').textContent = sum_m_w.toLocaleString() + ' 円';
+    document.getElementById('res_m_total').textContent = (sum_m_h + sum_m_w).toLocaleString() + ' 円';
 
-    const takehome = Number(document.getElementById('b_takehome').value) || 0;
-    const expense = Number(document.getElementById('b_expense').value) || 0;
-    const saving = Number(document.getElementById('b_saving').value) || 0;
+    // 2. ボーナス計算
+    const b_takehome_h = Number(document.getElementById('b_takehome_h').value) || 0;
+    const b_expense_h = Number(document.getElementById('b_expense_h').value) || 0;
+    const b_saving_h = Number(document.getElementById('b_saving_h').value) || 0;
+    const sum_b_h = b_takehome_h + b_expense_h + b_saving_h;
 
-    const b_total = takehome + expense + saving;
-    document.getElementById('res_b_total').textContent = b_total.toLocaleString() + ' 円';
+    const b_takehome_w = Number(document.getElementById('b_takehome_w').value) || 0;
+    const b_expense_w = Number(document.getElementById('b_expense_w').value) || 0;
+    const b_saving_w = Number(document.getElementById('b_saving_w').value) || 0;
+    const sum_b_w = b_takehome_w + b_expense_w + b_saving_w;
 
+    document.getElementById('res_b_h').textContent = sum_b_h.toLocaleString() + ' 円';
+    document.getElementById('res_b_w').textContent = sum_b_w.toLocaleString() + ' 円';
+    document.getElementById('res_b_total').textContent = (sum_b_h + sum_b_w).toLocaleString() + ' 円';
+
+    // 3. 年間資産増加計算
     const nisa_h = Math.abs(Number(document.getElementById('m_nisa_h').value) || 0);
     const nisa_w = Math.abs(Number(document.getElementById('m_nisa_w').value) || 0);
     const yearly_nisa = (nisa_h + nisa_w) * 12;
 
-    const yearly_bonus_save = Math.abs(saving);
+    const yearly_bonus_save = Math.abs(b_saving_h) + Math.abs(b_saving_w);
     const total_asset = yearly_nisa + yearly_bonus_save;
 
     document.getElementById('res_yearly_nisa').textContent = yearly_nisa.toLocaleString() + ' 円';
